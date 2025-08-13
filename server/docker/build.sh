@@ -21,7 +21,7 @@ fi
 echo ">>> Running docker build ${EXTRA_ARGS}"
 docker build \
 	${EXTRA_ARGS} \
-	--tag mediasoup-demo:latest \
+	--tag narenguru/mediasoup-demo:latest \
 	.
 
 echo ">>> Image built"

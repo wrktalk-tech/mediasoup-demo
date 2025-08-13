@@ -185,10 +185,69 @@ class Room extends EventEmitter
 
 	logStatus()
 	{
-		logger.info(
-			'logStatus() [roomId:%s, protoo Peers:%s]',
-			this._roomId,
-			this._protooRoom.peers.length);
+		// Worker-level stats from global maps.
+		const workerInfo =
+			`[worker-totals transports:${global.transports.size}, producers:${global.producers.size}, consumers:${global.consumers.size}, ` +
+			`dataProducers:${global.dataProducers.size}, dataConsumers:${global.dataConsumers.size}]`;
+
+		let roomLog =
+			`logStatus() [roomId:${this._roomId}] ${workerInfo}\n` +
+			'-- Room Info --\n' +
+			`  protoo peers count: ${this._protooRoom.peers.length}\n` +
+			`  broadcasters count: ${this._broadcasters.size}\n` +
+			'-- Participant Details --';
+
+		let roomTransports = 0;
+		let roomProducers = 0;
+		let roomConsumers = 0;
+		let roomDataProducers = 0;
+		let roomDataConsumers = 0;
+
+		// Log details for each protoo peer.
+		for (const peer of this._protooRoom.peers)
+		{
+			const peerTransports = peer.data.transports.size;
+			const peerProducers = peer.data.producers.size;
+			const peerConsumers = peer.data.consumers.size;
+			const peerDataProducers = peer.data.dataProducers.size;
+			const peerDataConsumers = peer.data.dataConsumers.size;
+
+			roomTransports += peerTransports;
+			roomProducers += peerProducers;
+			roomConsumers += peerConsumers;
+			roomDataProducers += peerDataProducers;
+			roomDataConsumers += peerDataConsumers;
+
+			roomLog += `\n  - peer [id:${peer.id}, joined:${peer.data.joined}]` +
+				` [transports:${peerTransports}, producers:${peerProducers}, consumers:${peerConsumers}, ` +
+				`dataProducers:${peerDataProducers}, dataConsumers:${peerDataConsumers}]`;
+		}
+
+		// Log details for each broadcaster.
+		for (const broadcaster of this._broadcasters.values())
+		{
+			const broadcasterTransports = broadcaster.data.transports.size;
+			const broadcasterProducers = broadcaster.data.producers.size;
+			const broadcasterConsumers = broadcaster.data.consumers.size;
+			const broadcasterDataProducers = broadcaster.data.dataProducers.size;
+			const broadcasterDataConsumers = broadcaster.data.dataConsumers.size;
+
+			roomTransports += broadcasterTransports;
+			roomProducers += broadcasterProducers;
+			roomConsumers += broadcasterConsumers;
+			roomDataProducers += broadcasterDataProducers;
+			roomDataConsumers += broadcasterDataConsumers;
+
+			roomLog += `\n  - broadcaster [id:${broadcaster.id}]` +
+				` [transports:${broadcasterTransports}, producers:${broadcasterProducers}, consumers:${broadcasterConsumers}, ` +
+				`dataProducers:${broadcasterDataProducers}, dataConsumers:${broadcasterDataConsumers}]`;
+		}
+
+		roomLog += '\n-- Room Totals --\n' +
+			`  [transports:${roomTransports}, producers:${roomProducers}, consumers:${roomConsumers}, ` +
+			`dataProducers:${roomDataProducers}, dataConsumers:${roomDataConsumers}]`;
+
+		logger.info(roomLog);
 	}
 
 	/**
