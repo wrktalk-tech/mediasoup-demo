@@ -86,7 +86,7 @@ async function run()
 		{
 			room.logStatus();
 		}
-	}, 120000);
+	}, 30000);
 
 	process.on('exit', (code) =>
 	{
